@@ -45,6 +45,19 @@ func formatInterval(_ seconds: TimeInterval) -> String {
     return "\(seconds) seconds"
 }
 
+/// Cached formatter producing the local date and time with millisecond
+/// precision, e.g. "10/23/2026, 8:28:00.814 AM".
+let timestampFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.setLocalizedDateFormatFromTemplate("yMd jmsSSS")
+    return formatter
+}()
+
+/// Formats a date for log lines using millisecond precision.
+func timestamp(_ date: Date = Date()) -> String {
+    timestampFormatter.string(from: date)
+}
+
 /// Prints command usage information.
 func printUsage() {
     print("""
@@ -137,8 +150,7 @@ Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in
 
     // Only log when the brightness reading actually changes.
     if level != lastLevel {
-        let time = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .medium)
-        print("[\(time)] Brightness: \(level)%")
+        print("[\(timestamp())] Brightness: \(level)%")
 
         if level < 100 {
             print("        ↓ Below 100%, setting to 100%")
