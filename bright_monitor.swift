@@ -127,17 +127,26 @@ signalSource.resume()
 signal(SIGINT, SIG_IGN)
 
 // Timer loop
+var lastLevel: Float?
+
 Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in
     guard let level = getBrightnessLevel() else {
         print("⚠️  Could not read brightness level.")
         return
     }
 
-    let time = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .medium)
-    print("[\(time)] Brightness: \(level)%")
+    // Only log when the brightness reading actually changes.
+    if level != lastLevel {
+        let time = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .medium)
+        print("[\(time)] Brightness: \(level)%")
+
+        if level < 100 {
+            print("        ↓ Below 100%, setting to 100%")
+        }
+    }
+    lastLevel = level
 
     if level < 100 {
-        print("        ↓ Below 100%, setting to 100%")
         _ = shell("bright 100")
     }
 }
